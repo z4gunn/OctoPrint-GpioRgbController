@@ -1,0 +1,4 @@
+include README.md
+recursive-include octoprint_gpiorgbcontroller/templates *
+recursive-include octoprint_gpiorgbcontroller/translations *
+recursive-include octoprint_gpiorgbcontroller/static *
