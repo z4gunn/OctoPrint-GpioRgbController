@@ -1,0 +1,23 @@
+<form class="form-horizontal">
+    <div class="control-group-header">
+        <h3>Pin Numbers</h3>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{{ _('Red') }}</label>
+        <div class="controls">
+            <input type="number" class="input-block-level" data-bind="value: settings.plugins.gpiorgbcontroller.red_pin">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{{ _('Green') }}</label>
+        <div class="controls">
+            <input type="number" class="input-block-level" data-bind="value: settings.plugins.gpiorgbcontroller.grn_pin">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{{ _('Blue') }}</label>
+        <div class="controls">
+            <input type="number" class="input-block-level" data-bind="value: settings.plugins.gpiorgbcontroller.blu_pin">
+        </div>
+    </div>
+</form>
