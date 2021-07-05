@@ -1,6 +1,6 @@
 # OctoPrint-GpioRgbController
 
-**TODO:** Describe what your plugin does.
+This is a plugin to control an external RGB LED strip via Raspberry Pi GPIO pins.  This plugin allows you to set the pin numbers in the settings and control the LED color and on/off state via sidebar control.
 
 ## Setup
 
@@ -8,10 +8,3 @@ Install via the bundled [Plugin Manager](https://docs.octoprint.org/en/master/bu
 or manually using this URL:
 
     https://github.com/z4gunn/OctoPrint-GpioRgbController/archive/master.zip
-
-**TODO:** Describe how to install your plugin, if more needs to be done than just installing it via pip or through
-the plugin manager.
-
-## Configuration
-
-**TODO:** Describe your plugin's configuration options (if any).
