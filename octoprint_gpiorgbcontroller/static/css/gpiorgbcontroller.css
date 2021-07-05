@@ -1,1 +1,3 @@
-/* TODO: Have your plugin's CSS files generated to here. */
+#settings_plugin_gpiorgbcontroller input {
+    width: 150px;
+}

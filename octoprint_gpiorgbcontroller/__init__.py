@@ -12,12 +12,36 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		self.led = None
 	
 
-	def init_leds(self, red_pin, grn_pin, blu_pin):
+	def init_rgb(self, red_pin, grn_pin, blu_pin):
 		try:
+			self.deinit_rgb()
 			self.led = RGBLED(red=red_pin, green=grn_pin, blue=blu_pin, active_high=True)
-			self._logger.info("LEDS Initialized")
+			self._logger.info("RGB initialized")
 		except:
-			self._logger.error("Error occured while initializing LED's")
+			self._logger.error("Error occured while initializing RGB")
+
+	def deinit_rgb(self):
+		try:
+			if(self.led is not None):
+				self.led.close()
+				self.led = None
+				self._logger.info("RGB deinitialized")
+		except:
+			self._logger.error("Error occured while deinitializing RGB")
+
+
+	def update_rgb(self, color, is_on):
+		if(self.led is not None):
+			rgb = int(color[1:], 16)
+			red = ((rgb & 0xFF0000) >> 16) / 255
+			grn = ((rgb & 0x00FF00) >> 8) / 255
+			blu = ((rgb & 0x0000FF)) / 255
+			if is_on:
+				self.led.color = (red, grn, blu)
+			else:
+				self.led.color = (0, 0, 0)
+		else:
+			self._logger.error("Error occured while updating RGB state")
 
 
 	def on_after_startup(self):
@@ -32,30 +56,24 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		self._logger.info("Color:   %s" % color)
 		self._logger.info("Is On:  %s" % is_on)
 		if(red_pin is not None and grn_pin is not None and blu_pin is not None):
-			self.init_leds(red_pin, grn_pin, blu_pin)
+			self.init_rgb(red_pin, grn_pin, blu_pin)
+			if(is_on is not None and color is not None):
+				self.update_rgb(color, is_on)
 
 
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
-		color_hex = self._settings.get(["color"])
-		rgb = int(color_hex[1:], 16)
+		if(data.has_key('red_pin') or data.has_hey('grn_pin') or data.has_key('blu_pin')):
+			red_pin = self._settings.get_int(["red_pin"])
+			grn_pin = self._settings.get_int(["grn_pin"])
+			blu_pin = self._settings.get_int(["blu_pin"])
+			if(red_pin is not None and grn_pin is not None and blu_pin is not None):
+				self.init_rgb(red_pin, grn_pin, blu_pin)
+		color = self._settings.get(["color"])
 		is_on = self._settings.get_boolean(["is_on"])
-		self._logger.info("Settings Saved")
-		self._logger.info("Color : " + color_hex)
-		self._logger.info("Is On: " + str(is_on))
-		self.update_pins(rgb, is_on, is_wht_on)
-
-
-	def update_pins(self, rgb, is_on):
-		red = ((rgb & 0xFF0000) >> 16) / 255
-		grn = ((rgb & 0x00FF00) >> 8) / 255
-		blu = ((rgb & 0x0000FF)) / 255
-		if is_on:
-			self.led.color = (red, grn, blu)
-		else:
-			self.led.color = (0, 0, 0)
-
-
+		if(is_on is not None and color is not None):
+				self.update_rgb(color, is_on)
+		
 	def get_settings_defaults(self):
 		return dict(
 			red_pin=20,
@@ -103,14 +121,8 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		)
 
 
-# If you want your plugin to be registered within OctoPrint under a different name than what you defined in setup.py
-# ("OctoPrint-PluginSkeleton"), you may define that here. Same goes for the other metadata derived from setup.py that
-# can be overwritten via __plugin_xyz__ control properties. See the documentation for that.
 __plugin_name__ = "GPIO RGB Controller"
 
-# Starting with OctoPrint 1.4.0 OctoPrint will also support to run under Python 3 in addition to the deprecated
-# Python 2. New plugins should make sure to run under both versions for now. Uncomment one of the following
-# compatibility flags according to what Python versions your plugin supports!
 #__plugin_pythoncompat__ = ">=2.7,<3" # only python 2
 __plugin_pythoncompat__ = ">=3,<4" # only python 3
 #__plugin_pythoncompat__ = ">=2.7,<4" # python 2 and 3
