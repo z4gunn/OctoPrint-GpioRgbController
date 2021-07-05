@@ -6,10 +6,13 @@ from gpiozero import RGBLED
 class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 							  octoprint.plugin.SettingsPlugin,
                               octoprint.plugin.AssetPlugin,
-                              octoprint.plugin.TemplatePlugin):
+                              octoprint.plugin.TemplatePlugin,
+							  octoprint.plugin.SimpleApiPlugin):
 
 	def __init__(self):
 		self.led = None
+		self.color = '#FFFFFF'
+		self.is_on = False
 	
 
 	def init_rgb(self, red_pin, grn_pin, blu_pin):
@@ -50,20 +53,17 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		blu_pin = self._settings.get_int(["blu_pin"])
 		color = self._settings.get(["color"])
 		is_on = self._settings.get_boolean(["is_on"])
-		self._logger.info("RED Pin: %s" % red_pin)
-		self._logger.info("GRN Pin: %s" % grn_pin)
-		self._logger.info("BLU Pin: %s" % blu_pin)
-		self._logger.info("Color:   %s" % color)
-		self._logger.info("Is On:  %s" % is_on)
 		if(red_pin is not None and grn_pin is not None and blu_pin is not None):
 			self.init_rgb(red_pin, grn_pin, blu_pin)
 			if(is_on is not None and color is not None):
-				self.update_rgb(color, is_on)
+				self.color = color
+				self.is_on = is_on
+				self.update_rgb(self.color, self.is_on)
 
 
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
-		if(data.has_key('red_pin') or data.has_hey('grn_pin') or data.has_key('blu_pin')):
+		if ('red_pin' in data or 'grn_pin' in data or 'blu_pin' in data):
 			red_pin = self._settings.get_int(["red_pin"])
 			grn_pin = self._settings.get_int(["grn_pin"])
 			blu_pin = self._settings.get_int(["blu_pin"])
@@ -72,7 +72,9 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		color = self._settings.get(["color"])
 		is_on = self._settings.get_boolean(["is_on"])
 		if(is_on is not None and color is not None):
-				self.update_rgb(color, is_on)
+			self.color = color
+			self.is_on = is_on
+			self.update_rgb(self.color, self.is_on)
 		
 	def get_settings_defaults(self):
 		return dict(
@@ -88,7 +90,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		# Define your plugin's asset files to automatically include in the
 		# core UI here.
 		return dict(
-			js=["js/gpiorgbcontroller.js"],
+			js=["js/gpiorgbcontroller.js",  "js/jscolor.min.js"],
 			css=["css/gpiorgbcontroller.css"],
 			less=["less/gpiorgbcontroller.less"]
 		)
@@ -98,6 +100,26 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		return [
 			dict(type="settings", custom_bindings=False)
 		]
+
+
+	def get_api_commands(self):
+		return dict(
+			update_color=["color"],
+			turn_on=[],
+			turn_off=[]
+		)
+
+
+	def on_api_command(self, command, data):
+		if command == "update_color":
+			color = data.get('color', None)
+			if color != None:
+				self.color = color
+		elif command == "turn_on":
+			self.is_on = True
+		elif command == "turn_off":
+			self.is_on = False
+		self.update_rgb(self.color, self.is_on)
 
 
 	def get_update_information(self):

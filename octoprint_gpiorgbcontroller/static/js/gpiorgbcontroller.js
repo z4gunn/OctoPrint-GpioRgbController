@@ -7,23 +7,48 @@
 $(function() {
     function GpiorgbcontrollerViewModel(parameters) {
         var self = this;
+        self.settings = parameters[0]
+        self.color = ko.observable()
+        self.isOn = ko.observable(false)
 
-        // assign the injected parameters, e.g.:
-        // self.loginStateViewModel = parameters[0];
-        // self.settingsViewModel = parameters[1];
+        self.updateColor = function(picker, event) {
+            var newColor = event.currentTarget.jscolor.toHEXString()
+            if(newColor) {
+                self.color(newColor)
+                OctoPrint.simpleApiCommand('gpiorgbcontroller', 'update_color', {'color': newColor})
+            }
+        }
 
-        // TODO: Implement your plugin's view model here.
+        self.saveColor = function(picker, event) {
+            var newColor = event.currentTarget.jscolor.toHEXString()
+            if(newColor) {
+                self.color(newColor)
+                OctoPrint.simpleApiCommand('gpiorgbcontroller', 'update_color', {'color': newColor})
+                OctoPrint.settings.savePluginSettings('gpiorgbcontroller', {'color': newColor})
+            }
+        }
+
+        self.turnOn = function(){
+            self.isOn(true)
+            OctoPrint.simpleApiCommand('gpiorgbcontroller', 'turn_on')
+            OctoPrint.settings.savePluginSettings('gpiorgbcontroller', {'is_on': true})
+        }
+
+        self.turnOff = function() {
+            self.isOn(false)
+            OctoPrint.simpleApiCommand('gpiorgbcontroller', 'turn_off')
+            OctoPrint.settings.savePluginSettings('gpiorgbcontroller', {'is_on': false})
+        }
+
+        self.onBeforeBinding = function() {
+            self.color(self.settings.settings.plugins.gpiorgbcontroller.color())
+            self.isOn(self.settings.settings.plugins.gpiorgbcontroller.is_on());  
+        }
     }
 
-    /* view model class, parameters for constructor, container to bind to
-     * Please see http://docs.octoprint.org/en/master/plugins/viewmodels.html#registering-custom-viewmodels for more details
-     * and a full list of the available options.
-     */
     OCTOPRINT_VIEWMODELS.push({
         construct: GpiorgbcontrollerViewModel,
-        // ViewModels your plugin depends on, e.g. loginStateViewModel, settingsViewModel, ...
-        dependencies: [ /* "loginStateViewModel", "settingsViewModel" */ ],
-        // Elements to bind to, e.g. #settings_plugin_gpiorgbcontroller, #tab_plugin_gpiorgbcontroller, ...
-        elements: [ /* ... */ ]
+        dependencies: ["settingsViewModel"],
+        elements: ["#sidebar_plugin_gpiorgbcontroller"]
     });
 });
