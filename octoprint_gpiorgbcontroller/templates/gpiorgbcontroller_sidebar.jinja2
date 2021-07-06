@@ -1,7 +1,7 @@
 <div class="control-group">
     <div class="row-fluid">
         <label class="control-label">Color</label>
-         <input class="span" id="color-picker-control" data-jscolor="" data-bind="value: color, event: {input: updateColor, change: saveColor}">
+         <input class="span" id="color-picker-control" data-jscolor="{format: 'hex'}" data-bind="value: color, event: {input: updateColor, change: saveColor}">
     </div>
     <div class="row-fluid">
         <button class="btn span6" data-bind="enable: !isOn(), click: turnOn">RGB On</button>

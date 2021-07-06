@@ -42,7 +42,8 @@ $(function() {
 
         self.onBeforeBinding = function() {
             self.color(self.settings.settings.plugins.gpiorgbcontroller.color())
-            self.isOn(self.settings.settings.plugins.gpiorgbcontroller.is_on());  
+            self.isOn(self.settings.settings.plugins.gpiorgbcontroller.is_on()) 
+            document.querySelector('#color-picker-control').jscolor.fromString(self.color())
         }
     }
 
