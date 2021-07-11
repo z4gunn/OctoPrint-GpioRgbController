@@ -45,6 +45,13 @@ $(function() {
             self.isOn(self.settings.settings.plugins.gpiorgbcontroller.is_on()) 
             document.querySelector('#color-picker-control').jscolor.fromString(self.color())
         }
+
+        self.onDataUpdaterPluginMessage = function(plugin, data) {
+            if(plugin != 'gpiorgbcontroller') { return }
+            if(data.hasOwnProperty('is_on')) {
+                self.isOn(data.is_on)
+            }
+        }
     }
 
     OCTOPRINT_VIEWMODELS.push({

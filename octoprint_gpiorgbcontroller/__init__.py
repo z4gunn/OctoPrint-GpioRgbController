@@ -1,7 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import
 import octoprint.plugin
-from gpiozero import RGBLED
+from gpiozero import RGBLED, Button
 
 class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 							  octoprint.plugin.SettingsPlugin,
@@ -13,24 +13,70 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		self.led = None
 		self.color = '#FFFFFF'
 		self.is_on = False
+		self.btn = None
+		self.is_btn_en = False
 	
 
 	def init_rgb(self, red_pin, grn_pin, blu_pin):
 		try:
 			self.deinit_rgb()
 			self.led = RGBLED(red=red_pin, green=grn_pin, blue=blu_pin, active_high=True)
-			self._logger.info("RGB initialized")
+			self._logger.info("LEDs initialized")
 		except:
-			self._logger.error("Error occured while initializing RGB")
+			self._logger.error("Error occured while initializing LEDs")
+
 
 	def deinit_rgb(self):
 		try:
 			if(self.led is not None):
 				self.led.close()
 				self.led = None
-				self._logger.info("RGB deinitialized")
+				self._logger.info("LEDs deinitialized")
 		except:
-			self._logger.error("Error occured while deinitializing RGB")
+			self._logger.error("Error occured while deinitializing LEDs")
+
+
+	def init_btn(self, pin):
+		try:
+			self.deinit_btn()
+			self.btn = Button(pin)
+			self.btn.when_pressed = self.on_btn_press
+			self.btn.when_released = self.on_btn_release
+			self._logger.info("Button initialized")
+		except:
+			self._logger.error("Error occured while initializing button")
+
+
+	def deinit_btn(self):
+		try:
+			if(self.btn is not None):
+				self.btn.close()
+				self.btn = None
+				self._logger.info("Button deinitialized")
+		except:
+			self._logger.error("Error occured while deinitializing button")
+
+
+	def read_btn(self):
+		if(self.btn is not None and self.is_btn_en):
+			if(self.btn.is_pressed):
+				self.on_btn_press()
+			else:
+				self.on_btn_release()
+
+
+	def on_btn_press(self):
+		if(self.is_btn_en):
+			self.is_on = True
+			self.update_rgb(self.color, self.is_on)
+			self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
+
+
+	def on_btn_release(self):
+		if(self.is_btn_en):
+			self.is_on = False
+			self.update_rgb(self.color, self.is_on)
+			self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
 
 
 	def update_rgb(self, color, is_on):
@@ -59,7 +105,14 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 				self.color = color
 				self.is_on = is_on
 				self.update_rgb(self.color, self.is_on)
-
+		btn_pin = self._settings.get_int(["btn_pin"])
+		is_btn_en = self._settings.get_boolean(["is_btn_en"])
+		if(btn_pin is not None and is_btn_en is not None):
+			self.init_btn(btn_pin)
+			self.is_btn_en = is_btn_en
+			self.read_btn()
+		self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
+		
 
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
@@ -75,6 +128,15 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 			self.color = color
 			self.is_on = is_on
 			self.update_rgb(self.color, self.is_on)
+		if('btn_pin' in data or 'is_btn_en' in data):
+			btn_pin = self._settings.get_int(["btn_pin"])
+			is_btn_en = self._settings.get_boolean(["is_btn_en"])
+			if(btn_pin is not None and is_btn_en is not None):
+				self.init_btn(btn_pin)
+				self.is_btn_en = is_btn_en
+				self.read_btn()
+		self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
+
 		
 	def get_settings_defaults(self):
 		return dict(
@@ -83,6 +145,8 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 			blu_pin=5,
 			color='#FFFFFF',
 			is_on = False,
+			btn_pin=21,
+			is_btn_en = False,
 		)
 
 

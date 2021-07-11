@@ -1,7 +1,6 @@
-#settings_plugin_gpiorgbcontroller input {
+.input-block-level {
     width: 150px;
 }
-
 
 #sidebar_plugin_gpiorgbcontroller button {
     margin-top: 10px;

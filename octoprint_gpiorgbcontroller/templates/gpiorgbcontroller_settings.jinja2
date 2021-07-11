@@ -20,4 +20,28 @@
             <input type="number" class="input-block-level" data-bind="value: settings.plugins.gpiorgbcontroller.blu_pin">
         </div>
     </div>
+    <div class="control-group-header">
+        <h3>Button Settings</h3>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{{ _('Input Pin #') }}</label>
+        <div class="controls">
+            <input type="number" class="input-block-level" data-bind="value: settings.plugins.gpiorgbcontroller.btn_pin">
+        </div>
+    </div>
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox">
+                <input type="checkbox" data-bind="checked: settings.plugins.gpiorgbcontroller.is_btn_en">
+                {{ _('Enable input button') }}
+            </label>
+        </div>
+    </div>
+    <div class="control-group">
+        <label>{{ _('Note: input button is active low (i.e. short to ground)') }}</label>
+    </div>
 </form>
+
+
+
+
