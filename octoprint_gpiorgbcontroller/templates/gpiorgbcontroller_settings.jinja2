@@ -1,34 +1,41 @@
 <form class="form-horizontal">
+    
     <div class="control-group-header">
         <h3>RGB Settings</h3>
     </div>
+    
     <div class="control-group">
         <label class="control-label">{{ _('Red Pin #') }}</label>
         <div class="controls">
             <input type="number" class="input-block-level" data-bind="value: settings.plugins.gpiorgbcontroller.red_pin">
         </div>
     </div>
+    
     <div class="control-group">
         <label class="control-label">{{ _('Green Pin #') }}</label>
         <div class="controls">
             <input type="number" class="input-block-level" data-bind="value: settings.plugins.gpiorgbcontroller.grn_pin">
         </div>
     </div>
+    
     <div class="control-group">
         <label class="control-label">{{ _('Blue Pin #') }}</label>
         <div class="controls">
             <input type="number" class="input-block-level" data-bind="value: settings.plugins.gpiorgbcontroller.blu_pin">
         </div>
     </div>
+    
     <div class="control-group-header">
         <h3>Button Settings</h3>
     </div>
+    
     <div class="control-group">
         <label class="control-label">{{ _('Input Pin #') }}</label>
         <div class="controls">
             <input type="number" class="input-block-level" data-bind="value: settings.plugins.gpiorgbcontroller.btn_pin">
         </div>
     </div>
+    
     <div class="control-group">
         <div class="controls">
             <label class="checkbox">
@@ -37,9 +44,24 @@
             </label>
         </div>
     </div>
+    
     <div class="control-group">
         <label>{{ _('Note: input button is active low (i.e. short to ground)') }}</label>
     </div>
+
+    <div class="control-group-header">
+        <h3>GCODE Commands</h3>
+    </div>
+    
+    <div class="control-group">
+        <div class="controls">
+            <label class="checkbox">
+                <input type="checkbox" data-bind="checked: settings.plugins.gpiorgbcontroller.gcode_command_enable">
+                {{ _("Enable M150 command (e.g. M150 B255 R255 U255 where B=blue, R=red and U=green)") }}
+            </label>
+        </div>
+    </div>
+
 </form>
 
 

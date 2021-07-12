@@ -15,6 +15,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		self.is_on = False
 		self.btn = None
 		self.is_btn_en = False
+		self.gcode_command_enable = False
 	
 
 	def init_rgb(self, red_pin, grn_pin, blu_pin):
@@ -69,15 +70,13 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		if(self.is_btn_en):
 			self.is_on = True
 			self.update_rgb(self.color, self.is_on)
-			self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
 
 
 	def on_btn_release(self):
 		if(self.is_btn_en):
 			self.is_on = False
 			self.update_rgb(self.color, self.is_on)
-			self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
-
+			
 
 	def update_rgb(self, color, is_on):
 		if(self.led is not None):
@@ -89,6 +88,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 				self.led.color = (red, grn, blu)
 			else:
 				self.led.color = (0, 0, 0)
+			self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
 		else:
 			self._logger.error("Error occured while updating RGB state")
 
@@ -99,7 +99,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		blu_pin = self._settings.get_int(["blu_pin"])
 		color = self._settings.get(["color"])
 		is_on = self._settings.get_boolean(["is_on"])
-		if(red_pin is not None and grn_pin is not None and blu_pin is not None):
+		if red_pin is not None and grn_pin is not None and blu_pin is not None:
 			self.init_rgb(red_pin, grn_pin, blu_pin)
 			if(is_on is not None and color is not None):
 				self.color = color
@@ -107,16 +107,19 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 				self.update_rgb(self.color, self.is_on)
 		btn_pin = self._settings.get_int(["btn_pin"])
 		is_btn_en = self._settings.get_boolean(["is_btn_en"])
-		if(btn_pin is not None and is_btn_en is not None):
+		if btn_pin is not None and is_btn_en is not None:
 			self.init_btn(btn_pin)
 			self.is_btn_en = is_btn_en
 			self.read_btn()
+		gcode_command_enable = self._settings.get_boolean(["gcode_command_enable"])
+		if gcode_command_enable is not None:
+			self.gcode_command_enable = gcode_command_enable
 		self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
 		
 
 	def on_settings_save(self, data):
 		octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
-		if ('red_pin' in data or 'grn_pin' in data or 'blu_pin' in data):
+		if 'red_pin' in data or 'grn_pin' in data or 'blu_pin' in data:
 			red_pin = self._settings.get_int(["red_pin"])
 			grn_pin = self._settings.get_int(["grn_pin"])
 			blu_pin = self._settings.get_int(["blu_pin"])
@@ -124,17 +127,20 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 				self.init_rgb(red_pin, grn_pin, blu_pin)
 		color = self._settings.get(["color"])
 		is_on = self._settings.get_boolean(["is_on"])
-		if(is_on is not None and color is not None):
+		if is_on is not None and color is not None:
 			self.color = color
 			self.is_on = is_on
 			self.update_rgb(self.color, self.is_on)
-		if('btn_pin' in data or 'is_btn_en' in data):
+		if 'btn_pin' in data or 'is_btn_en' in data:
 			btn_pin = self._settings.get_int(["btn_pin"])
 			is_btn_en = self._settings.get_boolean(["is_btn_en"])
 			if(btn_pin is not None and is_btn_en is not None):
 				self.init_btn(btn_pin)
 				self.is_btn_en = is_btn_en
 				self.read_btn()
+		gcode_command_enable = self._settings.get_boolean(["gcode_command_enable"])
+		if gcode_command_enable is not None:
+			self.gcode_command_enable = gcode_command_enable
 		self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
 
 		
@@ -147,6 +153,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 			is_on = False,
 			btn_pin=21,
 			is_btn_en = False,
+			gcode_command_enable = False
 		)
 
 
@@ -186,6 +193,73 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		self.update_rgb(self.color, self.is_on)
 
 
+	def gcode_parse_rgb_component(self, cmd, comp):
+		try:
+			comp_type = comp.upper()
+			if comp_type != "R" and comp_type != "G" and comp_type != "B":
+				return None
+			delim = ""
+			if comp_type == "R":
+				delim = "R"
+			elif comp_type == "G":
+				delim = "U"
+			elif comp_type == "B":
+				delim = "B"
+			params = cmd.split(delim)
+			if len(params) != 2:
+				return None
+			else:
+				color_int = int(params[1].split()[0])
+				if color_int < 0 or color_int > 255:
+					return None
+				else:
+					color_hex = "%02X" % color_int
+					if len(color_hex) != 2:
+						return None
+					else:
+						return color_hex
+		except:
+			return None
+
+
+	def replace_color_component(self, color, comp, value):
+		if len(color) != 7 or value is None:
+			return color
+		comp_type = comp.upper()
+		if comp_type != "R" and comp_type != "G" and comp_type != "B":
+			return color
+		if len(value) != 2:
+			return color
+		old_r = color[1:3]
+		old_g = color[3:5]
+		old_b = color[5:7]
+		new_color = color
+		if comp_type == "R":
+			new_color = "#" + value + old_g + old_b
+		elif comp_type == "G":
+			new_color = "#" + old_r + value + old_b
+		elif comp_type == "B":
+			new_color = "#" +old_r + old_g + value
+		return new_color
+
+
+	def on_gcode_command(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
+		if not self.gcode_command_enable:
+			return 
+		if gcode and gcode.startswith("M150"):
+			color = self.color
+			red = self.gcode_parse_rgb_component(cmd, "R")
+			color = self.replace_color_component(color, "R", red)
+			grn = self.gcode_parse_rgb_component(cmd, "G")
+			color = self.replace_color_component(color, "R", grn)
+			blu = self.gcode_parse_rgb_component(cmd, "B")
+			color = self.replace_color_component(color, "R", blu)
+			if color is not None and len(color) == 7:
+				self.color = color
+				self.is_on = True
+				self.update_rgb(self.color, self.is_on)
+
+		
 	def get_update_information(self):
 		# Define the configuration for your plugin to use with the Software Update
 		# Plugin here. See https://docs.octoprint.org/en/master/bundledplugins/softwareupdate.html
@@ -219,6 +293,7 @@ def __plugin_load__():
 
 	global __plugin_hooks__
 	__plugin_hooks__ = {
-		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+		"octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
+		"octoprint.comm.protocol.gcode.sent": __plugin_implementation__.on_gcode_command,
 	}
 
