@@ -57,9 +57,35 @@
         <div class="controls">
             <label class="checkbox">
                 <input type="checkbox" data-bind="checked: settings.plugins.gpiorgbcontroller.gcode_command_enable">
-                {{ _("Enable M150 command (e.g. M150 B255 R255 U255 where B=blue, R=red and U=green)") }}
+                {{ _("Enable M150 command") }}
             </label>
         </div>
+    </div>
+
+        <div class="control-group">
+        <div class="controls">
+            <label class="checkbox">
+                <input type="checkbox" data-bind="checked: settings.plugins.gpiorgbcontroller.gcode_index_enable">
+                {{ _("Enable RGB Index") }}
+            </label>
+        </div>
+    </div>
+
+     <div class="control-group"  data-bind="visible: settings.plugins.gpiorgbcontroller.gcode_index_enable()">
+        <label class="control-label">{{ _('RGB Index') }}</label>
+        <div class="controls">
+            <input type="number" class="input-block-level" data-bind="value: settings.plugins.gpiorgbcontroller.gcode_rgb_index">
+        </div>
+    </div>   
+
+     <div class="control-group">
+        <label>{{ _('GCODE Command Format:') }}</label>
+        <label>{{ _('M150 R[red] U[grn] B[blu] I[idx]') }}</label>
+        <label>{{ _('red = red intensity (0-255)') }}</label>
+        <label>{{ _('grn = green intensity (0-255)') }}</label>
+        <label>{{ _('blu = blue intensity (0-255)') }}</label>
+        <label>{{ _('idx = RGB index (optional)') }}</label>
+    
     </div>
 
 </form>

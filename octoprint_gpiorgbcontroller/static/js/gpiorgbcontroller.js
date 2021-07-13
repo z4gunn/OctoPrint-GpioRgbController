@@ -51,6 +51,10 @@ $(function() {
             if(data.hasOwnProperty('is_on')) {
                 self.isOn(data.is_on)
             }
+            if(data.hasOwnProperty('color')) {
+                self.color(data.color)
+                document.querySelector('#color-picker-control').jscolor.fromString(self.color())
+            }
         }
     }
 
