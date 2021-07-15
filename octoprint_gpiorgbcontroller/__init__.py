@@ -119,7 +119,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		gcode_index_enable = self._settings.get_boolean(["gcode_index_enable"])
 		if gcode_index_enable is not None:
 			self.gcode_index_enable = gcode_index_enable
-		gcode_rgb_index = self._settings.get_int("gcode_rgb_index")
+		gcode_rgb_index = self._settings.get_int(["gcode_rgb_index"])
 		if gcode_rgb_index is not None:
 			self.gcode_rgb_index = gcode_rgb_index
 		self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
@@ -152,7 +152,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		gcode_index_enable = self._settings.get_boolean(["gcode_index_enable"])
 		if gcode_index_enable is not None:
 			self.gcode_index_enable = gcode_index_enable
-		gcode_rgb_index = self._settings.get_int("gcode_rgb_index")
+		gcode_rgb_index = self._settings.get_int(["gcode_rgb_index"])
 		if gcode_rgb_index is not None:
 			self.gcode_rgb_index = gcode_rgb_index
 		self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=self.is_on))
