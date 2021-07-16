@@ -26,7 +26,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 			self.led = RGBLED(red=red_pin, green=grn_pin, blue=blu_pin, active_high=True)
 			self._logger.info("LEDs initialized")
 		except:
-			self._logger.error("Error occured while initializing LEDs")
+			self._logger.error("Error occurred while initializing LEDs")
 
 
 	def deinit_rgb(self):
@@ -36,7 +36,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 				self.led = None
 				self._logger.info("LEDs deinitialized")
 		except:
-			self._logger.error("Error occured while deinitializing LEDs")
+			self._logger.error("Error occurred while deinitializing LEDs")
 
 
 	def init_btn(self, pin):
@@ -47,7 +47,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 			self.btn.when_released = self.on_btn_release
 			self._logger.info("Button initialized")
 		except:
-			self._logger.error("Error occured while initializing button")
+			self._logger.error("Error occurred while initializing button")
 
 
 	def deinit_btn(self):
@@ -57,7 +57,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 				self.btn = None
 				self._logger.info("Button deinitialized")
 		except:
-			self._logger.error("Error occured while deinitializing button")
+			self._logger.error("Error occurred while deinitializing button")
 
 
 	def read_btn(self):
@@ -92,7 +92,7 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 				self.led.color = (0, 0, 0)
 			self._plugin_manager.send_plugin_message(self._identifier, dict(is_on=is_on, color=color))
 		else:
-			self._logger.error("Error occured while updating RGB state")
+			self._logger.error("Error occurred while updating RGB state")
 
 
 	def on_after_startup(self):
