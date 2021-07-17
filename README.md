@@ -22,4 +22,7 @@ or manually using this URL:
 
 This plugin is only intended to drive discrete or strip RGB LED's via independent GPIO control.  This plugin will not work with LED strips that have coontrolers or digital interface such as SPI.  
 
-A MOSFET must also be used to drive each LED channel since the PI is not capable of providing adequate current to the LED's.  This is a great [tutorial](https://learn.adafruit.com/rgb-led-strips) that explains on how to connect an analog RGB LED strip to an Arduino, however the same concept applies to interfacing to a PI.
+A MOSFET must also be used to drive each LED channel since the PI is not capable of providing adequate current to the LED's.  It is a also a good idea to use a separate power supply to drive the LED strip since the PI power supply might not have adequate current to drive the PI + LED strip.  The following diagram is an example of how to interface to an LED strip.
+
+
+![Wiring Diagram](/docs/imgs/wiring_diagram.png)
