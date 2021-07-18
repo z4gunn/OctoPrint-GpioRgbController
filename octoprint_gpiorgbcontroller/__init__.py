@@ -1,7 +1,6 @@
 # coding=utf-8
 from __future__ import absolute_import
 import octoprint.plugin
-from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero.pins.rpigpio import RPiGPIOFactory
 from gpiozero import RGBLED, Button
 
