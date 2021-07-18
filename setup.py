@@ -14,7 +14,7 @@ plugin_package = "octoprint_gpiorgbcontroller"
 plugin_name = "GPIO RGB Controller"
 
 # The plugin's version. Can be overwritten within OctoPrint's internal data via __plugin_version__ in the plugin module
-plugin_version = "0.3.1"
+plugin_version = "0.3.2"
 
 # The plugin's description. Can be overwritten within OctoPrint's internal data via __plugin_description__ in the plugin
 # module
@@ -33,7 +33,7 @@ plugin_url = "https://github.com/z4gunn/OctoPrint-GpioRgbController"
 plugin_license = "AGPLv3"
 
 # Any additional requirements besides OctoPrint should be listed here
-plugin_requires = ["gpiozero>=1.5.1"]
+plugin_requires = ["gpiozero>=1.5.1", "RPi.GPIO>=0.7.0"]
 
 ### --------------------------------------------------------------------------------------------------------------------
 ### More advanced options that you usually shouldn't have to touch follow after this point
