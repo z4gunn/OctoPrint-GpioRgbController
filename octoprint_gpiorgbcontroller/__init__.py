@@ -1,6 +1,9 @@
 # coding=utf-8
 from __future__ import absolute_import
 import octoprint.plugin
+
+import flask
+from octoprint.access.permissions import Permissions
 from gpiozero.pins.rpigpio import RPiGPIOFactory
 from gpiozero import RGBLED, Button
 
@@ -189,6 +192,13 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 		]
 
 
+	def is_api_protected(self):
+		# The LED is a physical output, so the API must not be reachable
+		# without a session. Declared explicitly because the default is
+		# False until OctoPrint 2.1.0 and OctoPrint 1.11 logs a warning
+		# when a plugin relies on it.
+		return True
+
 	def get_api_commands(self):
 		return dict(
 			update_color=["color"],
@@ -198,6 +208,12 @@ class GpiorgbcontrollerPlugin(octoprint.plugin.StartupPlugin,
 
 
 	def on_api_command(self, command, data):
+		# a logged in session is not enough: controlling a physical output
+		# is a control action (same check as the bundled
+		# simpleemergencystop plugin)
+		if not Permissions.CONTROL.can():
+			return flask.make_response("Insufficient rights", 403)
+
 		if command == "update_color":
 			color = data.get('color', None)
 			if color != None:
